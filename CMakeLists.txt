@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 2.6)
 
 # Define sources and executable
 set(EXECUTABLE_NAME "CandleInWaterSim")
-add_executable(${EXECUTABLE_NAME} src/main.cpp)
+add_executable(${EXECUTABLE_NAME} src/main.cpp 
+                                  src/materials.cpp 
+                                  src/point.cpp 
+                                  src/matrix.cpp)
 
 # Detect and add SFML
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})
