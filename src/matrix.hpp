@@ -15,6 +15,9 @@ public:
     Point* getPoint(int x, int y) const;
 
 private:
+    void SetupGrid();
+    void SetupMatrix();
+
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
     sf::Vector2i m_size;

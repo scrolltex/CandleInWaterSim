@@ -1,17 +1,14 @@
 #include "point.hpp"
 
-Point::Point() : Point(sf::Vector2i(0, 0), MaterialType::Air, AggregateState::Gas)
+Point::Point() : Point(sf::Vector2i(0, 0), MaterialType::Air)
 {
 
 }
 
-Point::Point(sf::Vector2i pos, MaterialType mat, AggregateState state)
+Point::Point(sf::Vector2i pos, MaterialType mat)
 {
-    this->material = mat;
-    this->aggregate = state;
-
-    m_rectangle.setSize(sf::Vector2f(pixelsPerUnit, pixelsPerUnit));
-    m_rectangle.setFillColor(sf::Color(255, 255, 255, 50));
+    m_rectangle.setSize(sf::Vector2f(pixelsPerUnit - 2, pixelsPerUnit - 2));
+    setMaterial(mat);
     setPosition(pos);
 }
 
@@ -22,18 +19,14 @@ Point::~Point()
 
 void Point::setPosition(sf::Vector2i pos)
 {
-    m_position = pos;
-    m_rectangle.setPosition(sf::Vector2f(pixelsPerUnit * m_position.x, pixelsPerUnit * m_position.y));
+    this->m_position = pos;
+    m_rectangle.setPosition(sf::Vector2f(pixelsPerUnit * m_position.x + 1, pixelsPerUnit * m_position.y + 1));
 }
 
 void Point::setMaterial(MaterialType mat)
 {
-    material = mat;
-}
-
-void Point::setAggregateState(AggregateState state)
-{
-    aggregate = state;
+    this->material = mat;
+    m_rectangle.setFillColor(getColorByMaterial(this->material));
 }
 
 void Point::draw(sf::RenderTarget& target, sf::RenderStates states) const

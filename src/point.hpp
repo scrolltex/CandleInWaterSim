@@ -8,7 +8,7 @@ class Point : public sf::Drawable
 {
 public:
     Point();
-    Point(sf::Vector2i pos, MaterialType mat, AggregateState state);
+    Point(sf::Vector2i pos, MaterialType mat);
     ~Point();
 
     void setPosition(sf::Vector2i pos);
@@ -23,16 +23,9 @@ public:
         return material;
     }
 
-    void setAggregateState(AggregateState state);
-    AggregateState getAggregateState() const
-    {
-        return aggregate;
-    }
-
 public:
     sf::Vector2i m_position;
     MaterialType material;
-    AggregateState aggregate;
 
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     

@@ -1,16 +1,14 @@
 #pragma once
-
-enum AggregateState {
-    Solid,
-    Liquid,
-    Gas
-};
+#include <SFML/Graphics.hpp>
+#include <map>
 
 enum MaterialType {
-    Air,                          
-    Block,
+    Air,      
     Water,
     Iron,
     Paraffin,
+    ParaffinLiquid,
     Fire
 };
+
+sf::Color getColorByMaterial(MaterialType mat);
