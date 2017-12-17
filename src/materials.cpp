@@ -11,5 +11,19 @@ sf::Color getColorByMaterial(MaterialType mat)
         { MaterialType::Fire,           sf::Color(255, 0, 0) },
     };
 
-    return colors[mat];
+    return colors.at(mat);
+}
+
+double getDensityByMaterial(MaterialType mat)
+{
+	std::map<MaterialType, double> arr = {
+		{ MaterialType::Air, 0.001225 },
+		{ MaterialType::Water, 1 },
+		{ MaterialType::Iron, 7.9 },
+		{ MaterialType::Paraffin, 0.915 },
+		{ MaterialType::ParaffinLiquid, 0.915 },
+		{ MaterialType::Fire, 0 },
+	};
+
+	return arr.at(mat);
 }

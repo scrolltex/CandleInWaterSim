@@ -12,3 +12,4 @@ enum MaterialType {
 };
 
 sf::Color getColorByMaterial(MaterialType mat);
+double getDensityByMaterial(MaterialType mat);

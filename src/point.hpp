@@ -22,8 +22,8 @@ public:
     {
         return material;
     }
-
-public:
+	
+private:
     sf::Vector2i m_position;
     MaterialType material;
 
