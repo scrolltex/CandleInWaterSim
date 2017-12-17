@@ -60,25 +60,21 @@ void Matrix::SetupGrid()
 void Matrix::SetupMatrix()
 {
     // Fill water
-    for(auto y = m_size.y/2; y < m_size.y; y++)
-        for(auto x = 0; x < m_size.x; x++)
-            getPoint(x, y)->setMaterial(MaterialType::Water);
+	for(auto y = m_size.y / 2; y < m_size.y; y++)
+	{
+		for(auto x = 0; x < m_size.x; x++)
+		{
+			auto point = getPoint(x, y);
+			point->setMaterial(MaterialType::Water);
+			water_entity.points.push_back(point);
+		}
+	}
 
     // TODO: Setup candle
 	sf::Vector2i candle_size(16, 16);
 	sf::Vector2i iron_size(candle_size.x, 3);
 	
 	const sf::Vector2i center = m_size / 2;
-
-	// Paraffin
-	for(auto y = 0; y < candle_size.y; y++)
-		for(auto x = 0; x < candle_size.x; x++)
-			getPoint(center.x - (candle_size.x / 2) + x, center.y + y)->setMaterial(MaterialType::Paraffin);
-
-	// Iron
-	for(auto y = 0; y < iron_size.y; y++)
-		for(auto x = 0; x < iron_size.x; x++)
-			getPoint(center.x - (iron_size.x / 2) + x, center.y + candle_size.y + y)->setMaterial(MaterialType::Iron);
 
 	// Fire
 	sf::Vector2i fire_size(4, 5);
@@ -89,12 +85,38 @@ void Matrix::SetupMatrix()
 		1,1,1,1,
 		0,1,1,0
 	};
-	for(auto y = 0; y < fire_size.y; y++)
+	for (auto y = 0; y < fire_size.y; y++)
 	{
-		for(auto x = 0; x < fire_size.x; x++)
+		for (auto x = 0; x < fire_size.x; x++)
 		{
-			if(fire[y * fire_size.x + x])
-				getPoint(center.x - (fire_size.x / 2) + x, center.y - fire_size.y + y)->setMaterial(MaterialType::Fire);
+			if (fire[y * fire_size.x + x])
+			{
+				auto point = getPoint(center.x - (fire_size.x / 2) + x, center.y - fire_size.y + y);
+				point->setMaterial(MaterialType::Fire);
+				candle_entity.points.push_back(point);
+			}
+		}
+	}
+
+	// Paraffin
+	for(auto y = 0; y < candle_size.y; y++)
+	{
+		for(auto x = 0; x < candle_size.x; x++)
+		{
+			auto point = getPoint(center.x - (candle_size.x / 2) + x, center.y + y);
+			point->setMaterial(MaterialType::Paraffin);
+			candle_entity.points.push_back(point);
+		}
+	}
+
+	// Iron
+	for(auto y = 0; y < iron_size.y; y++)
+	{
+		for(auto x = 0; x < iron_size.x; x++)
+		{
+			auto point = getPoint(center.x - (iron_size.x / 2) + x, center.y + candle_size.y + y);
+			point->setMaterial(MaterialType::Iron);
+			candle_entity.points.push_back(point);
 		}
 	}
 }

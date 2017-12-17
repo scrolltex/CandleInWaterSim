@@ -1,8 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "materials.hpp"
-
-const int pixelsPerUnit = 8;
+#include "units.hpp"
 
 class Point : public sf::Drawable
 {

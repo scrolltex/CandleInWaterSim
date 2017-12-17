@@ -2,7 +2,9 @@
 
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include "units.hpp"
 #include "point.hpp"
+#include "entity.hpp"
 
 class Matrix : public sf::Drawable
 {
@@ -23,4 +25,7 @@ private:
     sf::Vector2i m_size;
     Point *m_points;
     std::vector<sf::Vertex> m_grid;
+
+	Entity water_entity;
+	Entity candle_entity;
 };
