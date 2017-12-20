@@ -6,12 +6,9 @@ Matrix::Matrix(int width, int height)
     m_size.y = height;
 
     // Allocate array of points
-    m_points = new Point[m_size.x * m_size.y];
-
-    // Setup points positions
-    for(auto y = 0; y < m_size.y; y++)
-        for(auto x = 0; x < m_size.x; x++)
-            getPoint(x, y)->setPosition(sf::Vector2i(x, y));
+    for(auto x = 0; x < m_size.x; x++)
+    	for(auto y = 0; y < m_size.y; y++)
+			m_points.push_back(std::make_shared<Point>(sf::Vector2i(x, y), MaterialType::Air));
 
     SetupGrid();
     SetupMatrix();
@@ -19,7 +16,7 @@ Matrix::Matrix(int width, int height)
 
 Matrix::~Matrix()
 {
-    delete [] m_points;
+	
 }
 
 void Matrix::SetupGrid()
@@ -126,14 +123,14 @@ void Matrix::update(sf::Time deltaTime)
 
 }
 
-Point* Matrix::getPoint(int x, int y) const
+std::shared_ptr<Point> Matrix::getPoint(int x, int y) const
 {
-    return &m_points[x * m_size.y + y];
+    return std::shared_ptr<Point>(m_points.at(x * m_size.y + y));
 }
 
 void Matrix::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {    
     target.draw(&m_grid[0], m_grid.size(), sf::Lines, states);
     for(auto i = 0; i < m_size.x * m_size.y; i++)
-        target.draw(m_points[i], states);
+        target.draw(*m_points.at(i), states);
 }

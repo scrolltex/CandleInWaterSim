@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include <SFML/Graphics.hpp>
 #include "materials.hpp"
 #include "point.hpp"
@@ -33,7 +34,7 @@ public:
 		return weight;
 	}
 
-	std::vector<Point*> points;
+	std::vector<std::shared_ptr<Point>> points;
 
 	sf::Vector2i size;
 };
