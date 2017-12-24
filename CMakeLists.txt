@@ -7,7 +7,7 @@ set(EXECUTABLE_NAME "CandleInWaterSim")
 set(SRC src/main.cpp 
         src/materials.cpp 
         src/point.cpp 
-        src/matrix.cpp
+        src/candle.cpp
 )
 
 add_executable(${EXECUTABLE_NAME} ${SRC})

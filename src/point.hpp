@@ -1,32 +1,24 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "materials.hpp"
-#include "units.hpp"
 
-class Point : public sf::Drawable
+class Point : public sf::Drawable, public sf::Transformable
 {
 public:
-    Point();
-    Point(sf::Vector2i pos, MaterialType mat);
+	Point();
+	Point(MaterialType mat);
     ~Point();
-
-    void setPosition(sf::Vector2i pos);
-    sf::Vector2i getPosition() const
-    {
-        return m_position;
-    }
-
+	
     void setMaterial(MaterialType mat);
     MaterialType getMaterial() const
     {
-        return material;
+        return m_material;
     }
 	
 private:
-    sf::Vector2i m_position;
-    MaterialType material;
+    MaterialType m_material;
 
-    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     
     sf::RectangleShape m_rectangle;
 };

@@ -1,17 +1,26 @@
 #include <SFML/Graphics.hpp>
-#include "matrix.hpp"
+#include "candle.hpp"
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Candle in water simulation", sf::Style::Titlebar | sf::Style::Close);     
 
-    Matrix matrix(50, 50);
+	sf::Clock clock;
+	Candle candle;
 
-    sf::Clock clock;
+	const auto center = sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2);
+
+	sf::RectangleShape water(sf::Vector2f(window.getSize().x, center.y));
+	water.setPosition(0, center.y);
+	water.setFillColor(getColorByMaterial(Water));
+
+	candle.setPosition(center.x, center.y + candle.getSizeInPx().y - 9 * pixelsPerUnit);
+
     while(window.isOpen())
     {
-        sf::Time deltaTime = clock.restart();
+	    const auto delta_time = clock.restart();
 
+		// Events handling
         sf::Event event;
         while(window.pollEvent(event))
         {
@@ -22,10 +31,17 @@ int main()
             }
         }
 
-        matrix.update(deltaTime);
+		// Update
+		/*const auto candle_offset = (center.y) + (getDensityByMaterial(Water)/candle.CalculateAverageDensity()) * (candle.getSizeInPx().y - 9 * pixelsPerUnit);
+		candle.SetWaterLevel(candle_offset - center.y);
+		candle.setPosition(center.x, candle_offset + 9 * pixelsPerUnit);*/
+		//TODO: Candle floating
+		candle.update(delta_time);
 
+		// Drawning
         window.clear(sf::Color::White);
-        window.draw(matrix);
+		window.draw(water);
+        window.draw(candle);
         window.display();
     }
 
