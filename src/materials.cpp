@@ -20,7 +20,7 @@ double getDensityByMaterial(MaterialType mat)
 	std::map<MaterialType, double> arr = {
 		{ Air, 0.001225 },
 		{ Water, 1 },
-		{ Iron, 7.9 },
+		{ Iron, 3.9 },
 		{ Paraffin, 0.915 },
 		{ ParaffinLiquid, 0.915 },
 		{ Fire, 0 },

@@ -69,9 +69,9 @@ double Candle::CalculateAverageDensity()
 	double density_sum = 0;
 	for (auto y = 0; y < m_size.y; y++)
 		for (auto x = 0; x < m_size.x; x++)
-		density_sum += getDensityByMaterial(m_points.at(y * m_size.x + x).getMaterial());
+			density_sum += getDensityByMaterial(m_points.at(y * m_size.x + x).getMaterial());
 
-	return density_sum / static_cast<double>(m_size.x + m_size.y);
+	return density_sum / static_cast<double>(m_size.x * m_size.y);
 }
 
 int Candle::CalculateTotalVolume()

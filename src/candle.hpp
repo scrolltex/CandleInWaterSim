@@ -12,7 +12,7 @@ public:
 
 	sf::Vector2i getSizeInPx() const
 	{
-		return m_size * pixelsPerUnit;
+		return (m_size - sf::Vector2i(0, 9)) * pixelsPerUnit;
 	}
 	
 	void SetWaterLevel(double level)

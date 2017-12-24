@@ -14,7 +14,7 @@ int main()
 	water.setPosition(0, center.y);
 	water.setFillColor(getColorByMaterial(Water));
 
-	candle.setPosition(center.x, center.y + candle.getSizeInPx().y - 9 * pixelsPerUnit);
+	candle.setPosition(center.x, center.y + candle.getSizeInPx().y * pixelsPerUnit);
 
     while(window.isOpen())
     {
@@ -30,13 +30,14 @@ int main()
                 default: break;
             }
         }
-
+		
 		// Update
-		/*const auto candle_offset = (center.y) + (getDensityByMaterial(Water)/candle.CalculateAverageDensity()) * (candle.getSizeInPx().y - 9 * pixelsPerUnit);
-		candle.SetWaterLevel(candle_offset - center.y);
-		candle.setPosition(center.x, candle_offset + 9 * pixelsPerUnit);*/
-		//TODO: Candle floating
 		candle.update(delta_time);
+		
+		// Candle floating
+		const auto candle_offset = candle.CalculateAverageDensity() / getDensityByMaterial(Water) * candle.getSizeInPx().y;
+		candle.SetWaterLevel(candle_offset);
+		candle.setPosition(center.x, std::min(center.y + candle_offset, static_cast<double>(window.getSize().y)));
 
 		// Drawning
         window.clear(sf::Color::White);
