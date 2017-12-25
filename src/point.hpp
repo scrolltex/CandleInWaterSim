@@ -6,7 +6,7 @@ class Point : public sf::Drawable, public sf::Transformable
 {
 public:
 	Point();
-	Point(MaterialType mat);
+	Point(MaterialType mat, double temperature);
     ~Point();
 	
     void setMaterial(MaterialType mat);
@@ -14,6 +14,8 @@ public:
     {
         return m_material;
     }
+
+	double temperature;
 	
 private:
     MaterialType m_material;

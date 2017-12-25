@@ -11,4 +11,6 @@ enum MaterialType {
 };
 
 sf::Color getColorByMaterial(MaterialType mat);
-double getDensityByMaterial(MaterialType mat);
+double getDensity(MaterialType mat);
+double getHeatCapacity(MaterialType mat);
+double getThermalConductivity(MaterialType mat);

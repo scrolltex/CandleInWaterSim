@@ -1,15 +1,18 @@
 #include "point.hpp"
 #include "units.hpp"
 
-Point::Point() : Point(Air)
+using namespace units;
+
+Point::Point() : Point(Air, 25.0)
 {
 	
 }
 
-Point::Point(MaterialType mat)
+Point::Point(MaterialType mat, double temperature)
 {
     m_rectangle.setSize(sf::Vector2f(pixelsPerUnit, pixelsPerUnit));
     setMaterial(mat);
+	this->temperature = temperature;
 }
 
 Point::~Point()
