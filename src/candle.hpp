@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <cmath>
 #include <SFML/Graphics.hpp>
 #include "point.hpp"
 #include "units.hpp"

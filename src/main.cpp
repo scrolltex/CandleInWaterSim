@@ -18,7 +18,7 @@ int main()
 	
     while(window.isOpen())
     {
-	    const auto delta_time = clock.restart();
+	    const auto delta_time = clock.restart() * (float)999;
 
 		// Events handling
         sf::Event event;

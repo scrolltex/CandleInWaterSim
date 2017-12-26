@@ -1,5 +1,6 @@
 #include "materials.hpp"
 #include <map>
+#include <cmath>
 
 sf::Color getColorByMaterial(MaterialType mat)
 {

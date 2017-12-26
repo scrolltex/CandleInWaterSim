@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.1)
+
+set(CMAKE_CXX_STANDARD 11)
 
 project(CandleInWaterSim)
 
@@ -12,15 +14,17 @@ set(SRC src/main.cpp
 
 add_executable(${EXECUTABLE_NAME} ${SRC})
 
-set(SFML_STATIC_LIBRARIES TRUE)
+#set(SFML_STATIC_LIBRARIES (SFML_OS_WINDOWS AND SFML_COMPILER_MSVC))
 
 # Detect and add SFML
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})
 
 # Find sfml (also look for the main component when using Visual Studio)
 if(SFML_OS_WINDOWS AND SFML_COMPILER_MSVC)
+    set(SFML_STATIC_LIBRARIES TRUE)
     find_package(SFML 2 COMPONENTS main graphics window system REQUIRED)
 else()
+    set(SFML_STATIC_LIBRARIES FALSE)
     find_package(SFML 2 COMPONENTS graphics window system REQUIRED)
 endif()
 
