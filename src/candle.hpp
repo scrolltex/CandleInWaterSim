@@ -41,5 +41,7 @@ private:
 	std::vector<Point> m_points;
 	sf::Vector2i m_size;
 
+	sf::RectangleShape m_backplate;
+
 	int m_water_level;
 };

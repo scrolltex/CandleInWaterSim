@@ -60,6 +60,8 @@ Candle::Candle()
 	for(auto y = m_size.y - iron_height; y < m_size.y; y++)
 		for (auto x = 0; x < m_size.x; x++)
 			m_points.at(y * m_size.x + x).setMaterial(Iron);
+
+	m_backplate.setFillColor(getColorByMaterial(Paraffin) * sf::Color(215, 215, 215, 255));
 }
 
 Candle::~Candle()
@@ -112,7 +114,7 @@ void Candle::MovePoint(sf::Vector2i old_pos, sf::Vector2i new_pos)
 void Candle::update(sf::Time deltaTime)
 {
 	// Thermal conductivity
-	for(auto i = 0; i < m_points.size(); i++)
+	for(auto i = 0; i < m_points.size() - m_size.x * 3; i++)
 	{
 		// Fire temperature is constant. Don`t calculate.
 		if(m_points.at(i).getMaterial() == Fire)
@@ -172,6 +174,17 @@ void Candle::update(sf::Time deltaTime)
 
 	// TODO: Fire physics
 
+	// Update backplate size
+	auto backplate_y = 0;
+	for(backplate_y = 0; backplate_y < m_size.y; ++backplate_y)
+	{
+		if(m_points.at(index(sf::Vector2i(0, backplate_y))).getMaterial() == Paraffin)
+			break;
+	}
+
+
+	m_backplate.setSize(sf::Vector2f(m_size.x * units::pixelsPerUnit, (m_size.y - backplate_y) * units::pixelsPerUnit));
+	m_backplate.setPosition(0, backplate_y * units::pixelsPerUnit);
 }
 
 size_t Candle::index(sf::Vector2i pos) const
@@ -183,6 +196,7 @@ void Candle::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	states.transform *= getTransform();
 
+	target.draw(m_backplate, states);
 	for(auto i = 0; i < m_points.size(); i++)
 		target.draw(m_points.at(i), states);
 }

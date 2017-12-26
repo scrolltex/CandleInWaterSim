@@ -16,9 +16,11 @@ int main()
 
 	candle.setPosition(center.x, center.y + candle.getSizeInPx().y * units::pixelsPerUnit);
 	
+    float speedMultiplier = 2000;
+
     while(window.isOpen())
     {
-	    const auto delta_time = clock.restart() * (float)999;
+	    const auto delta_time = clock.restart() * speedMultiplier;
 
 		// Events handling
         sf::Event event;
