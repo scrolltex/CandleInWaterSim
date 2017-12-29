@@ -8,15 +8,15 @@ int main()
 	sf::Clock clock;
 	Candle candle;
 
-	const auto center = sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2);
+	const auto center = sf::Vector2f(window.getSize().x / 2.0, window.getSize().y / 2.0);
 
 	sf::RectangleShape water(sf::Vector2f(window.getSize().x, center.y));
 	water.setPosition(0, center.y);
 	water.setFillColor(getColorByMaterial(Water));
 
-	candle.setPosition(center.x, center.y + candle.getSizeInPx().y * units::pixelsPerUnit);
+	candle.setPosition(center.x, center.y + candle.GetSizeInPx().y * units::pixelsPerUnit);
 	
-    float speedMultiplier = 2000;
+    float speedMultiplier = 900;
 
     while(window.isOpen())
     {
@@ -34,12 +34,12 @@ int main()
         }
 		
     	// Candle floating
-		const auto candle_offset = (candle.CalculateAverageDensity() / getDensity(Water)) * candle.getSizeInPx().y;
+		const auto candle_offset = (candle.CalculateAverageDensity() / getDensity(Water)) * candle.GetSizeInPx().y;
 		candle.SetWaterLevel(candle_offset);
 		candle.setPosition(center.x, std::min(center.y + candle_offset, static_cast<double>(window.getSize().y)));
 
 		// Update
-		candle.update(delta_time);
+		candle.Update(delta_time);
 		
 		// Drawning
         window.clear(sf::Color::White);

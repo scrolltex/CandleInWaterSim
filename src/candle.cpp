@@ -15,14 +15,14 @@ Candle::Candle()
 	m_water_level = 0;
 
 	// Set origin to bottom center
-	setOrigin(m_size.x * pixelsPerUnit / 2, m_size.y * pixelsPerUnit);
+	setOrigin(m_size.x * pixelsPerUnit / 2.0, m_size.y * pixelsPerUnit);
 
 	// Init points
 	for(auto y = 0; y < m_size.y; y++)
 	{
 		for(auto x = 0; x < m_size.x; x++)
 		{
-			m_points.push_back(Point(Air, 25.0));
+			m_points.emplace_back(Air, 25.0);
 			m_points.at(y * m_size.x + x).setPosition(x * pixelsPerUnit, y * pixelsPerUnit);
 		}
 	}
@@ -45,7 +45,7 @@ Candle::Candle()
 			if(fire_image[y * fire_size.x + x])
 			{
 				const auto pos = sf::Vector2i((m_size.x/2) - (fire_size.x / 2) + x, 4 + y);
-				m_points.at(index(pos)).setMaterial(Fire);
+				m_points.at(index(pos)).SetMaterial(Fire);
 				m_points.at(index(pos)).temperature = 600.0;
 			}
 		}
@@ -54,26 +54,21 @@ Candle::Candle()
 	// Paraffin
 	for(auto y = fire_size.y + 4; y < m_size.y - iron_height; y++)
 		for(auto x = 0; x < m_size.x; x++)
-			m_points.at(y * m_size.x + x).setMaterial(Paraffin);
+			m_points.at(y * m_size.x + x).SetMaterial(Paraffin);
 
 	// Iron
 	for(auto y = m_size.y - iron_height; y < m_size.y; y++)
 		for (auto x = 0; x < m_size.x; x++)
-			m_points.at(y * m_size.x + x).setMaterial(Iron);
+			m_points.at(y * m_size.x + x).SetMaterial(Iron);
 
 	m_backplate.setFillColor(getColorByMaterial(Paraffin) * sf::Color(215, 215, 215, 255));
-}
-
-Candle::~Candle()
-{
-
 }
 
 double Candle::CalculateAverageDensity()
 {
 	double density_sum = 0;
 	for(auto i = 0; i < m_size.x * m_size.y; ++i)
-		density_sum += getDensity(m_points.at(i).getMaterial());
+		density_sum += getDensity(m_points.at(i).GetMaterial());
 
 	return density_sum / static_cast<double>(m_size.x * m_size.y);
 }
@@ -84,22 +79,22 @@ int Candle::CalculateTotalVolume()
 	for(auto i = 0; i < m_size.x * m_size.y; ++i)
 	{
 		const auto point = m_points.at(i);
-		if(point.getMaterial() == Paraffin || 
-		   point.getMaterial() == ParaffinLiquid || 
-		   point.getMaterial() == Iron)
+		if(point.GetMaterial() == Paraffin || 
+		   point.GetMaterial() == ParaffinLiquid || 
+		   point.GetMaterial() == Iron)
 		{
 				volume++;
 		}
 	}
 
-	return volume * cmPerUnit;
+	return volume * metersPerUnit;
 }
 
 int Candle::CalculateWeight()
 {
 	double weight = 0;
 	for(auto i = 0; i < m_size.x * m_size.y; ++i)
-		weight += getDensity(m_points.at(i).getMaterial()) * pow(metersPerUnit, 3);
+		weight += getDensity(m_points.at(i).GetMaterial()) * pow(metersPerUnit, 3);
 	
 	return weight;
 }
@@ -107,30 +102,30 @@ int Candle::CalculateWeight()
 void Candle::MovePoint(sf::Vector2i old_pos, sf::Vector2i new_pos)
 {
 	m_points.at(index(new_pos)) = m_points.at(index(old_pos));
-	m_points.at(index(old_pos)).setMaterial(Air);
+	m_points.at(index(old_pos)).SetMaterial(Air);
 	m_points.at(index(old_pos)).temperature = 25.0;
 }
 
-void Candle::update(sf::Time deltaTime)
+void Candle::Update(sf::Time deltaTime)
 {
 	// Thermal conductivity
-	for(auto i = 0; i < m_points.size() - m_size.x * 3; i++)
+	for(size_t i = 0; i < m_points.size() - m_size.x * 3; i++)
 	{
 		// Fire temperature is constant. Don`t calculate.
-		if(m_points.at(i).getMaterial() == Fire)
+		if(m_points.at(i).GetMaterial() == Fire)
 			continue;
 
 		// New temp calculation of part
 		auto calculateNewTempWith = [this, i, deltaTime](sf::Vector2i offset)
 		{
 			const auto pos = sf::Vector2i(i % m_size.x, i / m_size.x) + offset;
-			const auto mat = m_points.at(i).getMaterial();
+			const auto mat = m_points.at(i).GetMaterial();
 
 			// Getting point. If point not in candle matrix, it is water or air
 			Point point;
-			if(pos.y < 0 || pos.y < m_water_level && (pos.x < 0 || pos.x >= m_size.x))
+			if(pos.y < 0 || (pos.y < m_water_level && (pos.x < 0 || pos.x >= m_size.x)))
 				point = Point(Air, 25.0);
-			else if(pos.y >= m_size.y || pos.y >= m_water_level && (pos.x < 0 || pos.x >= m_size.x))
+			else if(pos.y >= m_size.y || (pos.y >= m_water_level && (pos.x < 0 || pos.x >= m_size.x)))
 				point = Point(Water, 25.0);
 			else
 				point = m_points.at(index(pos));
@@ -157,16 +152,16 @@ void Candle::update(sf::Time deltaTime)
 	}
 
 	// Paraffin aggregation state changing
-	for(auto i = 0; i < m_points.size(); ++i)
+	for(auto & point : m_points)
 	{
-		if(m_points.at(i).getMaterial() == Paraffin && m_points.at(i).temperature > 65)
+		if(point.GetMaterial() == Paraffin && point.temperature > 65)
 		{
-			m_points.at(i).setMaterial(ParaffinLiquid);
+			point.SetMaterial(ParaffinLiquid);
 		}
-		else if (m_points.at(i).getMaterial() == ParaffinLiquid && m_points.at(i).temperature > 90)
+		else if (point.GetMaterial() == ParaffinLiquid && point.temperature > 90)
 		{
-			m_points.at(i).setMaterial(Air);
-			m_points.at(i).temperature = 25;
+			point.SetMaterial(Air);
+			point.temperature = 25;
 		}
 	}
 
@@ -175,19 +170,18 @@ void Candle::update(sf::Time deltaTime)
 	// TODO: Fire physics
 
 	// Update backplate size
-	auto backplate_y = 0;
+	int backplate_y;
 	for(backplate_y = 0; backplate_y < m_size.y; ++backplate_y)
 	{
-		if(m_points.at(index(sf::Vector2i(0, backplate_y))).getMaterial() == Paraffin)
+		if(m_points.at(index(sf::Vector2i(0, backplate_y))).GetMaterial() == Paraffin)
 			break;
 	}
-
 
 	m_backplate.setSize(sf::Vector2f(m_size.x * units::pixelsPerUnit, (m_size.y - backplate_y) * units::pixelsPerUnit));
 	m_backplate.setPosition(0, backplate_y * units::pixelsPerUnit);
 }
 
-size_t Candle::index(sf::Vector2i pos) const
+size_t Candle::index(const sf::Vector2i pos) const
 {
 	return pos.y * m_size.x + pos.x;
 }
@@ -197,6 +191,6 @@ void Candle::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	states.transform *= getTransform();
 
 	target.draw(m_backplate, states);
-	for(auto i = 0; i < m_points.size(); i++)
-		target.draw(m_points.at(i), states);
+	for(const auto & point : m_points)
+		target.draw(point, states);
 }

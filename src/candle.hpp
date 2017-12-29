@@ -11,16 +11,16 @@ class Candle : public sf::Drawable, public sf::Transformable
 {
 public:
 	Candle();
-	~Candle();
+	~Candle() = default;
 
-	sf::Vector2i getSizeInPx() const
+	sf::Vector2i GetSizeInPx() const
 	{
 		return (m_size - sf::Vector2i(0, 9)) * pixelsPerUnit;
 	}
 	
 	void SetWaterLevel(double level)
 	{
-		m_water_level = m_size.y - round(level / pixelsPerUnit);
+		m_water_level = m_size.y - static_cast<int>(std::round(level / pixelsPerUnit));
 	}
 
 	double CalculateAverageDensity();
@@ -31,7 +31,7 @@ public:
 
 	void MovePoint(sf::Vector2i old_pos, sf::Vector2i new_pos);
 	
-	void update(sf::Time deltaTime);
+	void Update(sf::Time deltaTime);
 	
 private:
 	inline size_t index(sf::Vector2i pos) const;

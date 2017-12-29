@@ -7,10 +7,10 @@ class Point : public sf::Drawable, public sf::Transformable
 public:
 	Point();
 	Point(MaterialType mat, double temperature);
-    ~Point();
+    ~Point() = default;
 	
-    void setMaterial(MaterialType mat);
-    MaterialType getMaterial() const
+    void SetMaterial(MaterialType mat);
+    MaterialType GetMaterial() const
     {
         return m_material;
     }
