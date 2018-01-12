@@ -41,21 +41,29 @@ void createGUI(tgui::Gui &gui)
     });
 }
 
+void CalculateCandleFloating(Candle &candle, sf::Vector2u wnd_size)
+{
+	const auto center = sf::Vector2f(wnd_size.x / 2.0, wnd_size.y / 2.0);
+	const auto candle_offset = (candle.CalculateAverageDensity() / getDensity(Water)) * candle.GetSizeInPx().y;
+	candle.SetWaterLevel(candle_offset);
+	candle.setPosition(center.x, std::min(center.y + candle_offset, static_cast<double>(wnd_size.y)));
+}
+
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Candle in water simulation", sf::Style::Titlebar | sf::Style::Close);
+	window.setFramerateLimit(30);
     tgui::Gui gui(window);
 
 	sf::Clock clock;
-	Candle candle;
-
 	const auto center = sf::Vector2f(window.getSize().x / 2.0, window.getSize().y / 2.0);
 
 	sf::RectangleShape water(sf::Vector2f(window.getSize().x, center.y));
 	water.setPosition(0, center.y);
 	water.setFillColor(getColorByMaterial(Water));
 
-	candle.setPosition(center.x, center.y + candle.GetSizeInPx().y * units::pixelsPerUnit);
+	Candle candle;
+	CalculateCandleFloating(candle, window.getSize());
 	
     try
     {
@@ -89,15 +97,16 @@ int main()
 
             gui.handleEvent(event);
         }
-
-        // Candle floating
-        const auto candle_offset = (candle.CalculateAverageDensity() / getDensity(Water)) * candle.GetSizeInPx().y;
-        candle.SetWaterLevel(candle_offset);
-        candle.setPosition(center.x, std::min(center.y + candle_offset, static_cast<double>(window.getSize().y)));
+		
 
         // Update
-        if(isPlaying)
-            candle.Update(delta_time);
+		if(isPlaying)
+		{
+
+				CalculateCandleFloating(candle, window.getSize());
+
+				candle.Update(delta_time);
+		}
 
 		// Drawning
         window.clear(sf::Color::White);

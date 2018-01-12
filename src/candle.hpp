@@ -7,6 +7,14 @@
 
 using namespace units;
 
+const static bool fire_image[25] = {
+	0,0,1,0,0,
+	0,1,1,1,0,
+	1,1,1,1,1,
+	1,1,1,1,1,
+	0,1,1,1,0
+};
+
 class Candle : public sf::Drawable, public sf::Transformable
 {
 public:
@@ -25,9 +33,9 @@ public:
 
 	double CalculateAverageDensity();
 
-	int CalculateTotalVolume();
+	double CalculateTotalVolume();
 
-	int CalculateWeight();
+	double CalculateWeight();
 
 	void MovePoint(sf::Vector2i old_pos, sf::Vector2i new_pos);
 	
@@ -44,4 +52,7 @@ private:
 	sf::RectangleShape m_backplate;
 
 	int m_water_level;
+
+	sf::Vector2i m_fire_size;
+	int m_fire_level;
 };
