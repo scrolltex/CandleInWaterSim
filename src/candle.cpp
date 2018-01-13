@@ -5,55 +5,58 @@ Candle::Candle()
 {
 	// Setup size
 	m_size = sf::Vector2i(21, 18);
-
-	const int iron_height = 3;
-	m_fire_size = { 5, 5 };
-
+	
 	m_size.y += iron_height;
 	m_size.y += m_fire_size.y + 4;
-	
-	m_water_level = 0;
 
+	Reset();
+}
+
+void Candle::Reset()
+{
 	// Set origin to bottom center
 	setOrigin(m_size.x * pixelsPerUnit / 2.0, m_size.y * pixelsPerUnit);
 
+	m_points.clear();
+
 	// Init points
-	for(auto y = 0; y < m_size.y; y++)
+	for (auto y = 0; y < m_size.y; y++)
 	{
-		for(auto x = 0; x < m_size.x; x++)
+		for (auto x = 0; x < m_size.x; x++)
 		{
 			m_points.emplace_back(Air, 25.0);
 			m_points.at(y * m_size.x + x).setPosition(x * pixelsPerUnit, y * pixelsPerUnit);
 		}
 	}
-	
+
 	// Fire
 	m_fire_level = 9;
-	for(auto y = 0; y < m_fire_size.y; y++)
+	for (auto y = 0; y < m_fire_size.y; y++)
 	{
-		for(auto x = 0; x < m_fire_size.x; x++)
+		for (auto x = 0; x < m_fire_size.x; x++)
 		{
-			if(fire_image[y * m_fire_size.x + x])
+			if (fire_image[y * m_fire_size.x + x])
 			{
-				const auto pos = sf::Vector2i((m_size.x/2) - (m_fire_size.x / 2) + x, 4 + y);
+				const auto pos = sf::Vector2i((m_size.x / 2) - (m_fire_size.x / 2) + x, 4 + y);
 				m_points.at(index(pos)).SetMaterial(Fire);
 				m_points.at(index(pos)).temperature = 600.0;
 			}
 		}
 	}
-	
+
 	// Paraffin
-	for(auto y = m_fire_size.y + 4; y < m_size.y - iron_height; y++)
-		for(auto x = 0; x < m_size.x; x++)
+	for (auto y = m_fire_size.y + 4; y < m_size.y - iron_height; y++)
+		for (auto x = 0; x < m_size.x; x++)
 			m_points.at(y * m_size.x + x).SetMaterial(Paraffin);
 
 	// Iron
-	for(auto y = m_size.y - iron_height; y < m_size.y; y++)
+	for (auto y = m_size.y - iron_height; y < m_size.y; y++)
 		for (auto x = 0; x < m_size.x; x++)
 			m_points.at(y * m_size.x + x).SetMaterial(Iron);
 
 	m_backplate.setFillColor(getColorByMaterial(Paraffin) * sf::Color(215, 215, 215, 255));
 }
+
 
 double Candle::CalculateAverageDensity()
 {

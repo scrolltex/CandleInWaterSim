@@ -21,6 +21,8 @@ public:
 	Candle();
 	~Candle() = default;
 
+	void Reset();
+
 	sf::Vector2i GetSizeInPx() const
 	{
 		return (m_size - sf::Vector2i(0, 9)) * pixelsPerUnit;
@@ -53,6 +55,7 @@ private:
 
 	int m_water_level;
 
-	sf::Vector2i m_fire_size;
-	int m_fire_level;
+	sf::Vector2i m_fire_size = { 5, 5 };
+	int m_fire_level = 0;
+	const int iron_height = 3;
 };

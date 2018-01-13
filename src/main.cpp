@@ -22,7 +22,7 @@ void createGUI(tgui::Gui &gui)
         isPlaying = !isPlaying;
         runButton->setText(isPlaying ? "Pause" : "Play");
     });
-
+	
     tgui::EditBox::Ptr speedMultiplierEdit = tgui::EditBox::create();
     speedMultiplierEdit->setSize(100, 25);
     speedMultiplierEdit->setPosition(wnd_width - runButton->getSize().x - 15, 50);
@@ -92,6 +92,11 @@ int main()
                     gui.setView(window.getView());
                 break;
 
+				case sf::Event::KeyPressed: 
+					if(event.key.code == sf::Keyboard::R)
+						candle.Reset();
+				break;
+
                 default: break;
             }
 
@@ -102,10 +107,8 @@ int main()
         // Update
 		if(isPlaying)
 		{
-
-				CalculateCandleFloating(candle, window.getSize());
-
-				candle.Update(delta_time);
+			CalculateCandleFloating(candle, window.getSize());
+			candle.Update(delta_time);
 		}
 
 		// Drawning
