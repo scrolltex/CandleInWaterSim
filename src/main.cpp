@@ -62,8 +62,7 @@ int main()
 	water.setPosition(0, center.y);
 	water.setFillColor(getColorByMaterial(Water));
 
-	Candle candle;
-	CalculateCandleFloating(candle, window.getSize());
+	CalculateCandleFloating(Candle::Instance(), window.getSize());
 	
     try
     {
@@ -94,7 +93,7 @@ int main()
 
 				case sf::Event::KeyPressed: 
 					if(event.key.code == sf::Keyboard::R)
-						candle.Reset();
+						Candle::Instance().Reset();
 				break;
 
                 default: break;
@@ -107,14 +106,14 @@ int main()
         // Update
 		if(isPlaying)
 		{
-			CalculateCandleFloating(candle, window.getSize());
-			candle.Update(delta_time);
+			CalculateCandleFloating(Candle::Instance(), window.getSize());
+			Candle::Instance().Update(delta_time);
 		}
 
 		// Drawning
         window.clear(sf::Color::White);
 		window.draw(water);
-        window.draw(candle);
+        window.draw(Candle::Instance());
         gui.draw();
         window.display();
     }

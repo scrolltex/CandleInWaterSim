@@ -1,14 +1,11 @@
 #include "candle.hpp"
 #include "materials.hpp"
 
+using namespace units;
+
 Candle::Candle()
 {
-	// Setup size
-	m_size = sf::Vector2i(21, 18);
-	
-	m_size.y += iron_height;
-	m_size.y += m_fire_size.y + 4;
-
+	SetSize({21, 18}, 3);
 	Reset();
 }
 
@@ -20,9 +17,9 @@ void Candle::Reset()
 	m_points.clear();
 
 	// Init points
-	for (auto y = 0; y < m_size.y; y++)
+	for(auto y = 0; y < m_size.y; y++)
 	{
-		for (auto x = 0; x < m_size.x; x++)
+		for(auto x = 0; x < m_size.x; x++)
 		{
 			m_points.emplace_back(Air, 25.0);
 			m_points.at(y * m_size.x + x).setPosition(x * pixelsPerUnit, y * pixelsPerUnit);
@@ -31,11 +28,11 @@ void Candle::Reset()
 
 	// Fire
 	m_fire_level = 9;
-	for (auto y = 0; y < m_fire_size.y; y++)
+	for(auto y = 0; y < m_fire_size.y; y++)
 	{
-		for (auto x = 0; x < m_fire_size.x; x++)
+		for(auto x = 0; x < m_fire_size.x; x++)
 		{
-			if (fire_image[y * m_fire_size.x + x])
+			if(m_fire_image[y * m_fire_size.x + x])
 			{
 				const auto pos = sf::Vector2i((m_size.x / 2) - (m_fire_size.x / 2) + x, 4 + y);
 				m_points.at(index(pos)).SetMaterial(Fire);
@@ -45,18 +42,17 @@ void Candle::Reset()
 	}
 
 	// Paraffin
-	for (auto y = m_fire_size.y + 4; y < m_size.y - iron_height; y++)
-		for (auto x = 0; x < m_size.x; x++)
+	for(auto y = m_fire_size.y + 4; y < m_size.y - m_iron_height; y++)
+		for(auto x = 0; x < m_size.x; x++)
 			m_points.at(y * m_size.x + x).SetMaterial(Paraffin);
 
 	// Iron
-	for (auto y = m_size.y - iron_height; y < m_size.y; y++)
-		for (auto x = 0; x < m_size.x; x++)
+	for(auto y = m_size.y - m_iron_height; y < m_size.y; y++)
+		for(auto x = 0; x < m_size.x; x++)
 			m_points.at(y * m_size.x + x).SetMaterial(Iron);
 
 	m_backplate.setFillColor(getColorByMaterial(Paraffin) * sf::Color(215, 215, 215, 255));
 }
-
 
 double Candle::CalculateAverageDensity()
 {
@@ -186,7 +182,7 @@ void Candle::Update(sf::Time deltaTime)
 			{
 				for(auto x = 0; x < m_fire_size.x; ++x)
 				{
-					if(fire_image[y * m_fire_size.x + x])
+					if(m_fire_image[y * m_fire_size.x + x])
 					{
 						MovePoint({ offset_x + x, m_fire_level - m_fire_size.y + y }, 
 								  { offset_x + x, fire_y       - m_fire_size.y + y });
@@ -202,7 +198,7 @@ void Candle::Update(sf::Time deltaTime)
 		//Put out the fire
 		for(auto y = m_fire_size.y - 1; y >= 0; --y)
 			for(auto x = 0; x < m_fire_size.x; ++x)
-				if(fire_image[y * m_fire_size.x + x])
+				if(m_fire_image[y * m_fire_size.x + x])
 					m_points.at(index({ (m_size.x / 2) - (m_fire_size.x / 2) + x, m_fire_level - m_fire_size.y + y })).SetMaterial(Air);
 	}
 
