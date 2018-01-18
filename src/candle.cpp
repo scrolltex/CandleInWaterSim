@@ -6,7 +6,6 @@ using namespace units;
 Candle::Candle()
 {
 	SetSize({21, 18}, 3);
-	Reset();
 }
 
 void Candle::Reset()
@@ -58,7 +57,7 @@ double Candle::CalculateAverageDensity()
 {
 	double density_sum = 0;
 	for(auto i = 0; i < m_size.x * m_size.y; ++i)
-		density_sum += getDensity(m_points.at(i).GetMaterial());
+		density_sum += Config::Instance().Materials.at(m_points.at(i).GetMaterial()).density;
 
 	return density_sum / static_cast<double>(m_size.x * m_size.y);
 }
@@ -84,7 +83,7 @@ double Candle::CalculateWeight()
 {
 	double weight = 0;
 	for(auto i = 0; i < m_size.x * m_size.y; ++i)
-		weight += getDensity(m_points.at(i).GetMaterial()) * pow(metersPerUnit, 3);
+		weight += Config::Instance().Materials.at(m_points.at(i).GetMaterial()).density * pow(metersPerUnit, 3);
 	
 	return weight;
 }
@@ -127,11 +126,13 @@ void Candle::Update(sf::Time deltaTime)
 			// Calculate new temperature of part
 			const auto a = metersPerUnit / 4;
 
+			auto mat_vars = Config::Instance().Materials.at(mat);
+
 			// Q = L * t * a^2 * tK
-			const auto Q = getThermalConductivity(mat) * deltaTime.asSeconds() * pow(a, 2) * (point.temperature - m_points.at(i).temperature);
+			const auto Q = mat_vars.thermalConductivity * deltaTime.asSeconds() * pow(a, 2) * (point.temperature - m_points.at(i).temperature);
 
 			// delta temperature = Q / (c * m)
-			const auto delta_t = Q / (getHeatCapacity(mat) * (getDensity(mat) * pow(a, 3)));
+			const auto delta_t = Q / (mat_vars.heatCapacity * (mat_vars.density * pow(a, 3)));
 
 			return m_points.at(i).temperature + delta_t;
 		};

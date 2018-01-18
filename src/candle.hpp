@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include "point.hpp"
 #include "units.hpp"
+#include "config.hpp"
 
 class Candle : public sf::Drawable, public sf::Transformable
 {
@@ -29,7 +30,7 @@ public:
 		return (m_size - sf::Vector2i(0, m_fire_size.y + 4)) * units::pixelsPerUnit;
 	}
 
-	void SetSize(sf::Vector2i paraffin, int iron_height)
+	void SetSize(sf::Vector2i paraffin, int iron_height = 3)
 	{
 		m_size = paraffin;
 		m_iron_height = iron_height;

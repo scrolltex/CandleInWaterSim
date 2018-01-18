@@ -1,4 +1,9 @@
 #pragma once
 #include <TGUI/TGUI.hpp>
+#include <functional>
 
-void CreateGUI(tgui::Gui &gui);
+namespace gui{
+    void CreateGUI(tgui::Gui &gui);
+	
+    extern std::function<void()> onApplyCallback;
+}

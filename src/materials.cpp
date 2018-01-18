@@ -2,6 +2,20 @@
 #include <map>
 #include <cmath>
 
+std::string MaterialTypeToString(MaterialType mat)
+{
+    std::vector<std::string> strs = {
+        STRINGIFY(Air),
+        STRINGIFY(Water),
+        STRINGIFY(Iron),
+        STRINGIFY(Paraffin),
+        STRINGIFY(ParaffinLiquid),
+        STRINGIFY(Fire)
+    };
+
+	return strs.at((int)mat);
+}
+
 sf::Color getColorByMaterial(MaterialType mat)
 {
     std::map<MaterialType, sf::Color> colors = {
@@ -14,44 +28,4 @@ sf::Color getColorByMaterial(MaterialType mat)
     };
 
     return colors.at(mat);
-}
-
-double getDensity(MaterialType mat)
-{
-	std::map<MaterialType, double> arr = {
-		{ Air, 1.265 },
-		{ Water, 1000 },
-		{ Iron, 3.8 * pow(10, 3) },
-		{ Paraffin, 915 },
-		{ ParaffinLiquid, 915 },
-		{ Fire, 0 },
-	};
-
-	return arr.at(mat);
-}
-
-double getHeatCapacity(MaterialType mat)
-{
-	std::map<MaterialType, double> arr = {
-		{ Air, 1000 },
-		{ Water, 4183 },
-		{ Iron, 640.57 },
-		{ Paraffin, 3220 },
-		{ ParaffinLiquid, 3220 }
-	};
-
-	return arr.at(mat);
-}
-
-double getThermalConductivity(MaterialType mat)
-{
-	std::map<MaterialType, double> arr = {
-		{ Air, 0.022 },
-		{ Water, 0.6 },
-		{ Iron, 92 },
-		{ Paraffin, 0.26 },
-		{ ParaffinLiquid, 0.26 }
-	};
-
-	return arr.at(mat);
 }
