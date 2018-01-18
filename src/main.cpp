@@ -5,6 +5,8 @@
 #include "gui.hpp"
 #include "config.hpp"
 
+#include "gif.h"
+
 float speedMultiplier = 900;
 
 void CalculateCandleFloating(Candle &candle, sf::Vector2u wnd_size)
@@ -48,11 +50,15 @@ int main()
 	Candle::Instance().SetSize(Config::Instance().CandleSize);
 	CalculateCandleFloating(Candle::Instance(), window.getSize());
 	
+	// For recording to gif
+	bool isRecording = false;
+	GifWriter gif_writer;
+
 	sf::Clock clock;
     while(window.isOpen())
     {
 	    const auto delta_time = clock.restart() * speedMultiplier;
-
+		
 		// Events handling
         sf::Event event;
         while(window.pollEvent(event))
@@ -73,8 +79,17 @@ int main()
 				case sf::Event::KeyPressed: 
 					if(event.key.code == sf::Keyboard::R)
 						Candle::Instance().Reset();
-					if(event.key.code == sf::Keyboard::Space)
+					else if(event.key.code == sf::Keyboard::Space)
 						Config::Instance().isPlaying = !Config::Instance().isPlaying;
+					else if(event.key.code == sf::Keyboard::P)
+					{
+						if(!isRecording)
+							GifBegin(&gif_writer, "CandleInWaterSim.gif", window.getSize().x, window.getSize().y, 1);
+						else
+							GifEnd(&gif_writer);
+
+						isRecording = !isRecording;						
+					}
 				break;
 
                 default: break;
@@ -94,6 +109,16 @@ int main()
         window.draw(Candle::Instance());
         gui.draw();
         window.display();
+
+		// Recording to gif
+		if(isRecording)
+		{
+			//TODO: Optimization very needed
+			sf::Texture texture;
+			texture.create(window.getSize().x, window.getSize().y);			
+			texture.update(window);
+			GifWriteFrame(&gif_writer, texture.copyToImage().getPixelsPtr(), texture.getSize().x, texture.getSize().y, 1);
+		}
     }
 
     return 0;
