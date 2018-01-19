@@ -56,6 +56,8 @@ void Candle::Reset()
 double Candle::CalculateAverageDensity()
 {
 	double density_sum = 0;
+	//TODO: Fix needed for omp
+	//#pragma omp parallel for shared(density_sum)
 	for(auto i = 0; i < m_size.x * m_size.y; ++i)
 		density_sum += Config::Instance().Materials.at(m_points.at(i).GetMaterial()).density;
 
@@ -65,6 +67,8 @@ double Candle::CalculateAverageDensity()
 double Candle::CalculateTotalVolume()
 {
 	double volume = 0;
+	//TODO: Fix needed for omp
+	//#pragma omp parallel for shared(volume)
 	for(auto i = 0; i < m_size.x * m_size.y; ++i)
 	{
 		const auto point = m_points.at(i);
@@ -82,6 +86,8 @@ double Candle::CalculateTotalVolume()
 double Candle::CalculateWeight()
 {
 	double weight = 0;
+	//TODO: Fix needed for omp
+	//#pragma omp parallel for shared(weight)
 	for(auto i = 0; i < m_size.x * m_size.y; ++i)
 		weight += Config::Instance().Materials.at(m_points.at(i).GetMaterial()).density * pow(metersPerUnit, 3);
 	
@@ -101,6 +107,7 @@ void Candle::MovePoint(sf::Vector2i old_pos, sf::Vector2i new_pos)
 void Candle::Update(sf::Time deltaTime)
 {
 	// Thermal conductivity
+	#pragma omp parallel for shared(m_points)
 	for(size_t i = 0; i < m_points.size(); i++)
 	{
 		// Fire temperature is constant. Don`t calculate.
@@ -147,16 +154,17 @@ void Candle::Update(sf::Time deltaTime)
 	}
 
 	// Paraffin aggregation state changing
-	for(auto & point : m_points)
+	#pragma omp parallel for shared(m_points)
+	for(size_t i = 0; i < m_points.size(); i++)
 	{
-		if(point.GetMaterial() == Paraffin && point.temperature > 65)
+		if(m_points.at(i).GetMaterial() == Paraffin && m_points.at(i).temperature > 65)
 		{
-			point.SetMaterial(ParaffinLiquid);
+			m_points.at(i).SetMaterial(ParaffinLiquid);
 		}
-		else if (point.GetMaterial() == ParaffinLiquid && point.temperature > 90)
+		else if (m_points.at(i).GetMaterial() == ParaffinLiquid && m_points.at(i).temperature > 90)
 		{
-			point.SetMaterial(Air);
-			point.temperature = 25;
+			m_points.at(i).SetMaterial(Air);
+			m_points.at(i).temperature = 25;
 		}
 	}
 
