@@ -110,7 +110,7 @@ void Candle::Update(sf::Time deltaTime)
 {
 	// Thermal conductivity
 	#pragma omp parallel for
-	for(auto i = 0; i < m_points.size(); i++)
+	for(int i = 0; i < m_points.size(); i++)
 	{
 		// Fire temperature is constant. Don`t calculate.
 		if(m_points.at(i).GetMaterial() == Fire || 
@@ -157,7 +157,7 @@ void Candle::Update(sf::Time deltaTime)
 
 	// Paraffin aggregation state changing
 	#pragma omp parallel for
-	for(auto i = 0; i < m_points.size(); i++)
+	for(int i = 0; i < m_points.size(); i++)
 	{
 		if(m_points.at(i).GetMaterial() == Paraffin && m_points.at(i).temperature > 65)
 		{
@@ -182,13 +182,13 @@ void Candle::Update(sf::Time deltaTime)
 			break;
 	}
 	
-	if(fire_y != m_size.y)
+	if(m_fire_level != fire_y)
 	{
-		// Move fire if levels are differents
-		if(m_fire_level != fire_y)
+		if(fire_y != m_size.y)
 		{
+			// Move fire if levels are differents
 			const auto offset_x = (m_size.x / 2) - (m_fire_size.x / 2);
-
+				
 			for(auto y = m_fire_size.y - 1; y >= 0; --y)
 			{
 				for(auto x = 0; x < m_fire_size.x; ++x)
@@ -200,17 +200,17 @@ void Candle::Update(sf::Time deltaTime)
 					}
 				}
 			}
-
-			m_fire_level = fire_y;
 		}
-	}
-	else
-	{
-		//Put out the fire
-		for(auto y = m_fire_size.y - 1; y >= 0; --y)
-			for(auto x = 0; x < m_fire_size.x; ++x)
-				if(m_fire_image[y * m_fire_size.x + x])
-					m_points.at(index({ (m_size.x / 2) - (m_fire_size.x / 2) + x, m_fire_level - m_fire_size.y + y })).SetMaterial(Air);
+		else
+		{
+			//Put out the fire
+			for(auto y = m_fire_size.y - 1; y >= 0; --y)
+				for(auto x = 0; x < m_fire_size.x; ++x)
+					if(m_fire_image[y * m_fire_size.x + x])
+						m_points.at(index({ (m_size.x / 2) - (m_fire_size.x / 2) + x, m_fire_level - m_fire_size.y + y })).SetMaterial(Air);
+		}
+
+		m_fire_level = fire_y;
 	}
 
 	// Update backplate size
@@ -259,7 +259,7 @@ void Candle::CalculateHeatmap()
 
 	// Create heatmap	
 	#pragma omp parallel for shared(heatmap_img)
-	for(auto i = 0; i < m_points.size(); ++i)
+	for(int i = 0; i < m_points.size(); ++i)
 	{
 		const auto pos = sf::Vector2f(i / m_size.x, i % m_size.x);
 

@@ -57,7 +57,7 @@ int main()
 	sf::Clock clock;
     while(window.isOpen())
     {
-	    const auto delta_time = clock.restart() * speedMultiplier;
+	    const auto delta_time = clock.restart();
 		
 		// Events handling
         sf::Event event;
@@ -100,10 +100,16 @@ int main()
             gui.handleEvent(event);
         }
 
-        // Update		
-		CalculateCandleFloating(Candle::Instance(), window.getSize());
-		if(Config::Instance().isPlaying)
-			Candle::Instance().Update(delta_time);
+        // Update	
+    	static double __physics_time = 0;
+		__physics_time += delta_time.asSeconds();
+		if(__physics_time >= 0.03)
+		{
+			CalculateCandleFloating(Candle::Instance(), window.getSize());
+			if(Config::Instance().isPlaying)
+				Candle::Instance().Update(sf::seconds(__physics_time) * speedMultiplier);
+			__physics_time = 0;
+		}
 
 		// Drawning
         window.clear(sf::Color::White);
@@ -116,10 +122,17 @@ int main()
 		if(isRecording)
 		{
 			//TODO: Optimization very needed
-			sf::Texture texture;
-			texture.create(window.getSize().x, window.getSize().y);			
-			texture.update(window);
-			GifWriteFrame(&gif_writer, texture.copyToImage().getPixelsPtr(), texture.getSize().x, texture.getSize().y, 1);
+			static double __time = 0;
+			__time += delta_time.asMilliseconds();
+			if(__time >= 250)
+			{
+				sf::Texture texture;
+				texture.create(window.getSize().x, window.getSize().y);			
+				texture.update(window);
+				GifWriteFrame(&gif_writer, texture.copyToImage().getPixelsPtr(), texture.getSize().x, texture.getSize().y, __time / 10);
+
+				__time = 0;
+			}
 		}
     }
 
