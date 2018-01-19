@@ -39,6 +39,8 @@ public:
 		m_size.y += m_fire_size.y;
 		m_size.y += 4;
 
+		m_heatmap.setSize(static_cast<sf::Vector2f>(m_size * units::pixelsPerUnit));
+
 		Reset();
 	}
 	
@@ -63,8 +65,11 @@ private:
 
 	inline size_t index(sf::Vector2i pos) const;
 
+	void CalculateHeatmap();
+
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
+	sf::RectangleShape m_heatmap;
 	std::vector<Point> m_points;
 
 	sf::Vector2i m_size;

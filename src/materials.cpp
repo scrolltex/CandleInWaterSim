@@ -29,3 +29,13 @@ sf::Color getColorByMaterial(MaterialType mat)
 
     return colors.at(mat);
 }
+
+sf::Color ColorMix(sf::Color c1, sf::Color c2, double mix)
+{
+	sf::Color result;
+	result.r = c1.r * (1 - mix) + c2.r * mix;
+	result.g = c1.g * (1 - mix) + c2.g * mix;
+	result.b = c1.b * (1 - mix) + c2.b * mix;
+	result.a = c1.a * (1 - mix) + c2.a * mix;
+	return result;
+}

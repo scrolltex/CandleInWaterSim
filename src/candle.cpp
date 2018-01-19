@@ -51,6 +51,8 @@ void Candle::Reset()
 			m_points.at(y * m_size.x + x).SetMaterial(Iron);
 
 	m_backplate.setFillColor(getColorByMaterial(Paraffin) * sf::Color(215, 215, 215, 255));
+
+	CalculateHeatmap();
 }
 
 double Candle::CalculateAverageDensity()
@@ -107,8 +109,8 @@ void Candle::MovePoint(sf::Vector2i old_pos, sf::Vector2i new_pos)
 void Candle::Update(sf::Time deltaTime)
 {
 	// Thermal conductivity
-	#pragma omp parallel for shared(m_points)
-	for(size_t i = 0; i < m_points.size(); i++)
+	#pragma omp parallel for
+	for(auto i = 0; i < m_points.size(); i++)
 	{
 		// Fire temperature is constant. Don`t calculate.
 		if(m_points.at(i).GetMaterial() == Fire || 
@@ -154,8 +156,8 @@ void Candle::Update(sf::Time deltaTime)
 	}
 
 	// Paraffin aggregation state changing
-	#pragma omp parallel for shared(m_points)
-	for(size_t i = 0; i < m_points.size(); i++)
+	#pragma omp parallel for
+	for(auto i = 0; i < m_points.size(); i++)
 	{
 		if(m_points.at(i).GetMaterial() == Paraffin && m_points.at(i).temperature > 65)
 		{
@@ -228,6 +230,9 @@ void Candle::Update(sf::Time deltaTime)
 
 	m_backplate.setSize(sf::Vector2f(m_size.x * units::pixelsPerUnit, (m_size.y - std::min(backplate_y_right, backplate_y_left)) * units::pixelsPerUnit));
 	m_backplate.setPosition(0, std::min(backplate_y_right, backplate_y_left) * units::pixelsPerUnit);
+	
+	if(Config::Instance().drawHeatmap)
+		CalculateHeatmap();
 }
 
 size_t Candle::index(const sf::Vector2i pos) const
@@ -235,11 +240,52 @@ size_t Candle::index(const sf::Vector2i pos) const
 	return pos.y * m_size.x + pos.x;
 }
 
+void Candle::CalculateHeatmap()
+{
+	double t_min = m_points.at(0).temperature;
+	double t_max = t_min;
+
+	// Find max and min temperature
+	for(auto& p : m_points)
+	{
+		if(p.temperature < t_min)
+			t_min = p.temperature;
+		if(p.temperature > t_max)
+			t_max = p.temperature;
+	}
+
+	sf::Image heatmap_img;
+	heatmap_img.create(m_size.x * units::pixelsPerUnit, m_size.y * units::pixelsPerUnit);
+
+	// Create heatmap	
+	#pragma omp parallel for shared(heatmap_img)
+	for(auto i = 0; i < m_points.size(); ++i)
+	{
+		const auto pos = sf::Vector2f(i / m_size.x, i % m_size.x);
+
+		const auto mix = (m_points.at(i).temperature - t_min) / (t_max - t_min);
+		const auto pointColor = ColorMix(sf::Color::Blue, sf::Color::Red, mix) * sf::Color(255, 255, 255, 200);
+		
+		// Fill square
+		for(auto y = 0; y < pixelsPerUnit; ++y)
+			for(auto x = 0; x < pixelsPerUnit; ++x)
+				heatmap_img.setPixel(pos.y * pixelsPerUnit + x, pos.x * pixelsPerUnit + y, pointColor);
+	}
+
+	// Set texture to rectangle
+	static sf::Texture texture;
+	texture.loadFromImage(heatmap_img);
+	m_heatmap.setTexture(&texture);
+}
+
 void Candle::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	states.transform *= getTransform();
-
+	
 	target.draw(m_backplate, states);
 	for(const auto & point : m_points)
 		target.draw(point, states);
+
+	if(Config::Instance().drawHeatmap)
+		target.draw(m_heatmap, states);
 }

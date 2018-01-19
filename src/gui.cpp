@@ -17,10 +17,11 @@ void gui::CreateGUI(tgui::Gui &gui)
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Top menu ///////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	const int icon_size = 32;
+	const uint8_t icon_size = 32;
+	const uint8_t icon_count = 4;
 
 	auto topPanel = tgui::Panel::create();
-	topPanel->setSize(icon_size * 3 + 5 * 2 + 10, icon_size + 10);
+	topPanel->setSize(icon_size * icon_count + 5 * (icon_count-1) + 10, icon_size + 10);
 	topPanel->setPosition("(parent.width - width)/2", 0);
 	gui.add(topPanel);
 
@@ -44,9 +45,15 @@ void gui::CreateGUI(tgui::Gui &gui)
 	resetButton->setSmooth(true);
 	gui.add(resetButton);
 
+	auto heatmapButton = tgui::Picture::create("resources/heatmap.png");
+	heatmapButton->setSize(icon_size, icon_size);
+	heatmapButton->setPosition(tgui::bindRight(resetButton) + 5, tgui::bindTop(topPanel) + 5);
+	heatmapButton->setSmooth(true);
+	gui.add(heatmapButton);
+
 	auto editButton = tgui::Picture::create("resources/edit.png");
 	editButton->setSize(icon_size, icon_size);
-	editButton->setPosition(tgui::bindRight(resetButton) + 5, tgui::bindTop(topPanel) + 5);
+	editButton->setPosition(tgui::bindRight(heatmapButton) + 5, tgui::bindTop(topPanel) + 5);
 	editButton->setSmooth(true);
 	gui.add(editButton);
 	
@@ -77,6 +84,10 @@ void gui::CreateGUI(tgui::Gui &gui)
 
 	resetButton->connect("clicked", [] () {
 		Candle::Instance().Reset();
+	});
+
+	heatmapButton->connect("clicked", [] () {
+		Config::Instance().drawHeatmap = !Config::Instance().drawHeatmap;
 	});
 
 	editButton->connect("clicked", [&gui] () {

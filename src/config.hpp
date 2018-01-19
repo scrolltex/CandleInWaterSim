@@ -23,6 +23,8 @@ public:
 	/////////////////////////////////////////////////////////////
 
     bool isPlaying = false;
+	bool drawHeatmap = false;
+
     sf::Vector2i CandleSize = {21, 19};
 
     std::map<MaterialType, MaterialVars> Materials;

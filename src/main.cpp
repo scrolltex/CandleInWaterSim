@@ -81,6 +81,8 @@ int main()
 						Candle::Instance().Reset();
 					else if(event.key.code == sf::Keyboard::Space)
 						Config::Instance().isPlaying = !Config::Instance().isPlaying;
+					else if(event.key.code == sf::Keyboard::H)
+						Config::Instance().drawHeatmap = !Config::Instance().drawHeatmap;
 					else if(event.key.code == sf::Keyboard::P)
 					{
 						if(!isRecording)
@@ -97,7 +99,7 @@ int main()
 
             gui.handleEvent(event);
         }
-		
+
         // Update		
 		CalculateCandleFloating(Candle::Instance(), window.getSize());
 		if(Config::Instance().isPlaying)
