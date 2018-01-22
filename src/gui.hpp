@@ -5,6 +5,8 @@
 namespace gui{
     void CreateGUI(tgui::Gui &gui);
 	void UpdateGUI(tgui::Gui &gui);
+
+	void ShowMessage(tgui::Gui &gui, std::string message, std::string title = "Info");
 	
     extern std::function<void()> onApplyCallback;
 

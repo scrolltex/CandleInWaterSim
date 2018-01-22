@@ -37,6 +37,19 @@ void setPlaying(tgui::Gui& gui, bool playing)
 	}
 }
 
+void gui::ShowMessage(tgui::Gui &gui, std::string message, std::string title)
+{
+    auto wnd_width = tgui::bindWidth(gui);
+    auto wnd_height = tgui::bindHeight(gui);
+
+	auto messageBox = tgui::MessageBox::create();
+	messageBox->setTitle(title);
+	messageBox->setText(message);
+	messageBox->setPosition(wnd_width/2 - tgui::bindWidth(messageBox)/2, 
+							wnd_height/2 - tgui::bindHeight(messageBox)/2);
+	gui.add(messageBox);	
+}
+
 void CreateHeatmapBar(tgui::Gui &gui);
 
 void CreateConfigMenu(tgui::Gui &gui);

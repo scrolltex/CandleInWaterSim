@@ -10,6 +10,10 @@
 
 sf::Time SimulationTime = sf::Time::Zero;
 float speedMultiplier = 900;
+	
+// For recording to gif
+bool isRecording = false;
+GifWriter gif_writer;
 
 void ResetSimulation()
 {
@@ -52,11 +56,13 @@ int main()
 	Candle::Instance().CalculateFloating(window.getSize());
 	Candle::Instance().onCandleExtinguished = [&] {
 		Config::Instance().isPlaying = false;
+
+		if(isRecording)
+		{
+			GifEnd(&gif_writer);
+			gui::ShowMessage(gui, "GIF saved!");
+		}
 	};
-	
-	// For recording to gif
-	bool isRecording = false;
-	GifWriter gif_writer;
 
 	sf::Clock clock;
     while(window.isOpen())
@@ -92,7 +98,10 @@ int main()
 						if(!isRecording)
 							GifBegin(&gif_writer, "CandleInWaterSim.gif", window.getSize().x, window.getSize().y, 1);
 						else
+						{
 							GifEnd(&gif_writer);
+							gui::ShowMessage(gui, "GIF saved!");
+						}
 
 						isRecording = !isRecording;						
 					}
