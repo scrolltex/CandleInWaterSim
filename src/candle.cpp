@@ -102,8 +102,29 @@ void Candle::MovePoint(sf::Vector2i old_pos, sf::Vector2i new_pos)
 	m_points.at(index(new_pos)).setPosition({ static_cast<float>(new_pos.x) * pixelsPerUnit, static_cast<float>(new_pos.y) * pixelsPerUnit });
 	m_points.at(index(old_pos)).setPosition({ static_cast<float>(old_pos.x) * pixelsPerUnit, static_cast<float>(old_pos.y) * pixelsPerUnit });
 
+	auto getTemp = [this, old_pos] (sf::Vector2i offset) -> double {
+		const auto pos = old_pos + offset;
+
+		Point point;
+		if (pos.y < 0 || (pos.y < m_water_level && (pos.x < 0 || pos.x >= m_size.x)))
+			point = Point(Air, 25.0);
+		else if (pos.y >= m_size.y || (pos.y >= m_water_level && (pos.x < 0 || pos.x >= m_size.x)))
+			point = Point(Water, 25.0);
+		else
+			point = m_points.at(index(pos));
+
+		return point.temperature;
+	};
+
+	double temp = 0;
+	temp += getTemp({0, 1});
+	temp += getTemp({0, -1});
+	temp += getTemp({1, 0});
+	temp += getTemp({-1, 0});
+	temp /= 4;
+	
 	m_points.at(index(old_pos)).SetMaterial(Air);
-	m_points.at(index(old_pos)).temperature = 25.0;
+	m_points.at(index(old_pos)).temperature = temp;
 }
 
 void Candle::Update(sf::Time deltaTime)
