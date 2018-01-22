@@ -6,8 +6,17 @@
 #include "config.hpp"
 
 #include "gif.h"
+#include "main.hpp"
 
+sf::Time SimulationTime = sf::Time::Zero;
 float speedMultiplier = 900;
+
+void ResetSimulation()
+{
+	Config::Instance().isPlaying = false;
+	Candle::Instance().Reset();
+	SimulationTime = sf::Time::Zero;
+}
 
 void CalculateCandleFloating(Candle &candle, sf::Vector2u wnd_size)
 {
@@ -78,7 +87,7 @@ int main()
 
 				case sf::Event::KeyPressed: 
 					if(event.key.code == sf::Keyboard::R)
-						Candle::Instance().Reset();
+						ResetSimulation();
 					else if(event.key.code == sf::Keyboard::Space)
 						Config::Instance().isPlaying = !Config::Instance().isPlaying;
 					else if(event.key.code == sf::Keyboard::H)
@@ -107,9 +116,16 @@ int main()
 		{
 			CalculateCandleFloating(Candle::Instance(), window.getSize());
 			if(Config::Instance().isPlaying)
+			{
+				SimulationTime += sf::seconds(__physics_time) * speedMultiplier;
+
 				Candle::Instance().Update(sf::seconds(__physics_time) * speedMultiplier);
+			}
+
 			__physics_time = 0;
 		}
+
+		gui::UpdateGUI(gui);
 
 		// Drawning
         window.clear(sf::Color::White);

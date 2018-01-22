@@ -3,9 +3,17 @@
 #include <map>
 #include "candle.hpp"
 #include "config.hpp"
+#include "main.hpp"
 
 // Callbacks
 std::function<void()> gui::onApplyCallback;
+
+void gui::UpdateGUI(tgui::Gui &gui)
+{
+	static auto simTimeLabel = gui.get<tgui::Label>("SimulationTimeLabel");
+	if(simTimeLabel)
+		simTimeLabel->setText(FormatTime(SimulationTime));
+}
 
 void CreateConfigMenu(tgui::Gui &gui);
 
@@ -92,6 +100,12 @@ void gui::CreateGUI(tgui::Gui &gui)
 	editButton->setPosition(tgui::bindRight(heatmapButton) + 5, tgui::bindTop(topPanel) + 5);
 	editButton->setSmooth(true);
 	gui.add(editButton);
+
+	auto simTimeLabel = tgui::Label::create("00:00:00");
+	simTimeLabel->setSize(tgui::bindWidth(gui)/2, 25);
+	simTimeLabel->setPosition(tgui::bindWidth(gui)/2 - tgui::bindWidth(simTimeLabel)/2, tgui::bindBottom(topPanel) + 5);
+	simTimeLabel->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
+	gui.add(simTimeLabel, "SimulationTimeLabel");
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Register callbacks /////////////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +133,7 @@ void gui::CreateGUI(tgui::Gui &gui)
 	pauseButton->connect("clicked", setPlaying, false);
 
 	resetButton->connect("clicked", [] () {
-		Candle::Instance().Reset();
+		ResetSimulation();
 	});
 
 	heatmapButton->connect("clicked", [] () {

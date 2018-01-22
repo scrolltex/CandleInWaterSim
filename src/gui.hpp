@@ -4,6 +4,7 @@
 
 namespace gui{
     void CreateGUI(tgui::Gui &gui);
+	void UpdateGUI(tgui::Gui &gui);
 	
     extern std::function<void()> onApplyCallback;
 }
