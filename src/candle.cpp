@@ -208,6 +208,8 @@ void Candle::Update(sf::Time deltaTime)
 				for(auto x = 0; x < m_fire_size.x; ++x)
 					if(m_fire_image[y * m_fire_size.x + x])
 						m_points.at(index({ (m_size.x / 2) - (m_fire_size.x / 2) + x, m_fire_level - m_fire_size.y + y })).SetMaterial(Air);
+			
+			onCandleExtinguished();
 		}
 
 		m_fire_level = fire_y;
@@ -233,6 +235,15 @@ void Candle::Update(sf::Time deltaTime)
 	
 	if(Config::Instance().drawHeatmap)
 		CalculateHeatmap();
+}
+
+void Candle::CalculateFloating(sf::Vector2u wnd_size)
+{
+    const auto waterDensity = Config::Instance().Materials.at(Water).density;
+	const auto center = sf::Vector2f(wnd_size.x / 2.0, wnd_size.y / 2.0);
+	const auto candle_offset = (CalculateAverageDensity() / waterDensity) * GetSizeInPx().y;
+	SetWaterLevel(candle_offset);
+	setPosition(center.x, std::min(center.y + candle_offset, static_cast<double>(wnd_size.y)));
 }
 
 size_t Candle::index(const sf::Vector2i pos) const

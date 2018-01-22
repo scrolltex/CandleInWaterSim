@@ -5,6 +5,7 @@
 #include "point.hpp"
 #include "units.hpp"
 #include "config.hpp"
+#include <functional>
 
 class Candle : public sf::Drawable, public sf::Transformable
 {
@@ -58,6 +59,10 @@ public:
 	void MovePoint(sf::Vector2i old_pos, sf::Vector2i new_pos);
 	
 	void Update(sf::Time deltaTime);
+
+	void CalculateFloating(sf::Vector2u wnd_size);
+
+	std::function<void()> onCandleExtinguished;
 	
 private:
 	Candle();

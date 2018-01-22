@@ -18,15 +18,6 @@ void ResetSimulation()
 	SimulationTime = sf::Time::Zero;
 }
 
-void CalculateCandleFloating(Candle &candle, sf::Vector2u wnd_size)
-{
-    const auto waterDensity = Config::Instance().Materials.at(Water).density;
-	const auto center = sf::Vector2f(wnd_size.x / 2.0, wnd_size.y / 2.0);
-	const auto candle_offset = (candle.CalculateAverageDensity() / waterDensity) * candle.GetSizeInPx().y;
-	candle.SetWaterLevel(candle_offset);
-	candle.setPosition(center.x, std::min(center.y + candle_offset, static_cast<double>(wnd_size.y)));
-}
-
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Candle in water simulation"/*, sf::Style::Titlebar | sf::Style::Close*/);
@@ -56,8 +47,12 @@ int main()
 	water.setPosition(0, center.y);
 	water.setFillColor(getColorByMaterial(Water));
 
+	// Candle setup
 	Candle::Instance().SetSize(Config::Instance().CandleSize);
-	CalculateCandleFloating(Candle::Instance(), window.getSize());
+	Candle::Instance().CalculateFloating(window.getSize());
+	Candle::Instance().onCandleExtinguished = [&] {
+		Config::Instance().isPlaying = false;
+	};
 	
 	// For recording to gif
 	bool isRecording = false;
@@ -114,12 +109,12 @@ int main()
 		__physics_time += delta_time.asSeconds();
 		if(__physics_time >= 0.03)
 		{
-			CalculateCandleFloating(Candle::Instance(), window.getSize());
 			if(Config::Instance().isPlaying)
 			{
 				SimulationTime += sf::seconds(__physics_time) * speedMultiplier;
 
 				Candle::Instance().Update(sf::seconds(__physics_time) * speedMultiplier);
+				Candle::Instance().CalculateFloating(window.getSize());
 			}
 
 			__physics_time = 0;
