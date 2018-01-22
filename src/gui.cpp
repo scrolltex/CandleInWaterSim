@@ -8,53 +8,41 @@
 // Callbacks
 std::function<void()> gui::onApplyCallback;
 
-void gui::UpdateGUI(tgui::Gui &gui)
+void setPlaying(tgui::Gui& gui, bool playing)
 {
-	static auto simTimeLabel = gui.get<tgui::Label>("SimulationTimeLabel");
-	if(simTimeLabel)
-		simTimeLabel->setText(FormatTime(SimulationTime));
+	static bool _playing_cached = Config::Instance().isPlaying;
+	if(_playing_cached == playing) return;
+	_playing_cached = playing;
+	
+	static auto playButton = gui.get<tgui::Picture>("PlayButton");
+	static auto pauseButton = gui.get<tgui::Picture>("PauseButton");
+
+	if(!playButton || !pauseButton)
+		return;
+
+	Config::Instance().isPlaying = playing;
+	if(Config::Instance().isPlaying)
+	{
+		playButton->disable();
+		playButton->hide();
+		pauseButton->show();
+		pauseButton->enable();
+	}
+	else
+	{
+		pauseButton->disable();
+		pauseButton->hide();
+		playButton->show();
+		playButton->enable();
+	}
 }
+
+void CreateHeatmapBar(tgui::Gui &gui);
 
 void CreateConfigMenu(tgui::Gui &gui);
 
-void CreateHeatmapBar(tgui::Gui &gui)
-{
-    auto wnd_width = tgui::bindWidth(gui);
-    auto wnd_height = tgui::bindHeight(gui);
-	
-	const sf::Vector2i bar_size = {25, 200};
-	sf::Image heatmap_bar_img;
-	heatmap_bar_img.create(bar_size.x, bar_size.y);
-
-	for(auto y = 0; y < bar_size.y; ++y)
-	{
-		const double mix = static_cast<double>(y) / bar_size.y;
-		for(auto x = 0; x < bar_size.x; ++x)
-			heatmap_bar_img.setPixel(x, y, getHeatMapColor(1-mix));
-	}
-
-	static sf::Texture texture;
-	texture.loadFromImage(heatmap_bar_img);
-	auto heatmapBar = tgui::Picture::create(texture);
-	heatmapBar->setSize(bar_size.x, bar_size.y);
-	heatmapBar->setPosition(wnd_width - tgui::bindWidth(heatmapBar), wnd_height/2 - tgui::bindHeight(heatmapBar)/2);
-	gui.add(heatmapBar);
-
-	auto maxTempLabel = tgui::Label::create("600");
-	maxTempLabel->setAutoSize(true);
-	maxTempLabel->setPosition(tgui::bindLeft(heatmapBar) - tgui::bindWidth(maxTempLabel) - 5, tgui::bindTop(heatmapBar));
-	gui.add(maxTempLabel);
-
-	auto minTempLabel = tgui::Label::create("25");
-	minTempLabel->setAutoSize(true);
-	minTempLabel->setPosition(tgui::bindLeft(heatmapBar) - tgui::bindWidth(minTempLabel) - 5, tgui::bindBottom(heatmapBar) - tgui::bindHeight(minTempLabel));
-	gui.add(minTempLabel);
-}
-
 void gui::CreateGUI(tgui::Gui &gui)
 {
-	CreateHeatmapBar(gui);
-
     auto wnd_width = tgui::bindWidth(gui);
     auto wnd_height = tgui::bindHeight(gui);
 	
@@ -73,7 +61,7 @@ void gui::CreateGUI(tgui::Gui &gui)
 	playButton->setSize(icon_size, icon_size);
 	playButton->setPosition(tgui::bindLeft(topPanel) + 5, tgui::bindTop(topPanel) + 5);
 	playButton->setSmooth(true);
-	gui.add(playButton);
+	gui.add(playButton, "PlayButton");
 	
 	auto pauseButton = tgui::Picture::create("resources/pause.png");
 	pauseButton->setSize(tgui::bindSize(playButton));
@@ -81,7 +69,7 @@ void gui::CreateGUI(tgui::Gui &gui)
 	pauseButton->setSmooth(true);
 	pauseButton->hide();
 	pauseButton->disable();
-	gui.add(pauseButton);
+	gui.add(pauseButton, "PauseButton");
 
 	auto resetButton = tgui::Picture::create("resources/reset.png");
 	resetButton->setSize(icon_size, icon_size);
@@ -106,31 +94,13 @@ void gui::CreateGUI(tgui::Gui &gui)
 	simTimeLabel->setPosition(tgui::bindWidth(gui)/2 - tgui::bindWidth(simTimeLabel)/2, tgui::bindBottom(topPanel) + 5);
 	simTimeLabel->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	gui.add(simTimeLabel, "SimulationTimeLabel");
+		
+	CreateHeatmapBar(gui);
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Register callbacks /////////////////////////////////////////////////////////////////////////////////////////
-		
-	auto setPlaying = [playButton, pauseButton] (bool playing)
-	{
-		Config::Instance().isPlaying = playing;
-		if(Config::Instance().isPlaying)
-		{
-			playButton->disable();
-			playButton->hide();
-			pauseButton->show();
-			pauseButton->enable();
-		}
-		else
-		{
-			pauseButton->disable();
-			pauseButton->hide();
-			playButton->show();
-			playButton->enable();
-		}
-	};
-
-	playButton->connect("clicked", setPlaying, true);
-	pauseButton->connect("clicked", setPlaying, false);
+	playButton->connect("clicked", setPlaying, std::ref(gui), true);
+	pauseButton->connect("clicked", setPlaying, std::ref(gui), false);
 
 	resetButton->connect("clicked", [] () {
 		ResetSimulation();
@@ -144,6 +114,43 @@ void gui::CreateGUI(tgui::Gui &gui)
 		if(!gui.get("ConfigWindow"))
 			CreateConfigMenu(gui);
 	});
+}
+
+void CreateHeatmapBar(tgui::Gui &gui)
+{
+    auto wnd_width = tgui::bindWidth(gui);
+    auto wnd_height = tgui::bindHeight(gui);
+	
+	const sf::Vector2i bar_size = {25, 200};
+	sf::Image heatmap_bar_img;
+	heatmap_bar_img.create(bar_size.x, bar_size.y);
+
+	for(auto y = 0; y < bar_size.y; ++y)
+	{
+		const double mix = static_cast<double>(y) / bar_size.y;
+		for(auto x = 0; x < bar_size.x; ++x)
+			heatmap_bar_img.setPixel(x, y, getHeatMapColor(1-mix));
+	}
+
+	static sf::Texture texture;
+	texture.loadFromImage(heatmap_bar_img);
+	auto heatmapBar = tgui::Picture::create(texture);
+	heatmapBar->setSize(bar_size.x, bar_size.y);
+	heatmapBar->setPosition(wnd_width - tgui::bindWidth(heatmapBar), wnd_height/2 - tgui::bindHeight(heatmapBar)/2);
+	heatmapBar->hide();
+	gui.add(heatmapBar, "HeatmapBar");
+
+	auto maxTempLabel = tgui::Label::create("600");
+	maxTempLabel->setAutoSize(true);
+	maxTempLabel->setPosition(tgui::bindLeft(heatmapBar) - tgui::bindWidth(maxTempLabel) - 5, tgui::bindTop(heatmapBar));
+	maxTempLabel->hide();
+	gui.add(maxTempLabel, "HeatmapBar_MaxT");
+
+	auto minTempLabel = tgui::Label::create("25");
+	minTempLabel->setAutoSize(true);
+	minTempLabel->setPosition(tgui::bindLeft(heatmapBar) - tgui::bindWidth(minTempLabel) - 5, tgui::bindBottom(heatmapBar) - tgui::bindHeight(minTempLabel));
+	minTempLabel->hide();
+	gui.add(minTempLabel, "HeatmapBar_MinT");
 }
 
 struct MaterialEditBox
@@ -306,4 +313,38 @@ void CreateConfigMenu(tgui::Gui &gui)
 		gui::onApplyCallback();
 		configWindow->destroy();
 	});
+}
+
+void gui::UpdateGUI(tgui::Gui &gui)
+{
+	static auto simTimeLabel = gui.get<tgui::Label>("SimulationTimeLabel");
+	if(simTimeLabel)
+		simTimeLabel->setText(FormatTime(SimulationTime));
+	
+	static auto heatmapBar = gui.get<tgui::Picture>("HeatmapBar");
+	static auto heatmapBar_maxT = gui.get<tgui::Label>("HeatmapBar_MaxT");
+	static auto heatmapBar_minT = gui.get<tgui::Label>("HeatmapBar_MinT");
+
+	if(heatmapBar && heatmapBar_maxT && heatmapBar_minT)
+	{
+		static bool _drawHeatmap_cached = Config::Instance().drawHeatmap;
+		if(_drawHeatmap_cached != Config::Instance().drawHeatmap)
+		{
+			_drawHeatmap_cached = Config::Instance().drawHeatmap;
+			if(_drawHeatmap_cached)
+			{
+				heatmapBar->show();
+				heatmapBar_maxT->show();
+				heatmapBar_minT->show();
+			}
+			else
+			{
+				heatmapBar->hide();
+				heatmapBar_maxT->hide();
+				heatmapBar_minT->hide();
+			}
+		}
+	}	
+
+	setPlaying(gui, Config::Instance().isPlaying);
 }
