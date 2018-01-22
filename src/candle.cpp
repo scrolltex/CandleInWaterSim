@@ -232,9 +232,6 @@ void Candle::Update(sf::Time deltaTime)
 
 	m_backplate.setSize(sf::Vector2f(m_size.x * units::pixelsPerUnit, (m_size.y - std::min(backplate_y_right, backplate_y_left)) * units::pixelsPerUnit));
 	m_backplate.setPosition(0, std::min(backplate_y_right, backplate_y_left) * units::pixelsPerUnit);
-	
-	if(Config::Instance().drawHeatmap)
-		CalculateHeatmap();
 }
 
 void Candle::CalculateFloating(sf::Vector2u wnd_size)
@@ -300,5 +297,8 @@ void Candle::draw(sf::RenderTarget& target, sf::RenderStates states) const
 		target.draw(point, states);
 
 	if(Config::Instance().drawHeatmap)
+	{		
+		const_cast<Candle*>(this)->CalculateHeatmap(); // It's best not to do
 		target.draw(m_heatmap, states);
+	}
 }
