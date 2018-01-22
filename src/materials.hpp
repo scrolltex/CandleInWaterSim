@@ -35,4 +35,4 @@ struct MaterialVars {
 };
 
 sf::Color getColorByMaterial(MaterialType mat);
-sf::Color ColorMix(sf::Color c1, sf::Color c2, double mix);
+sf::Color getHeatMapColor(double value);

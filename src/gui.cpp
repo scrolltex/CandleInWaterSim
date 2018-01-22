@@ -9,8 +9,44 @@ std::function<void()> gui::onApplyCallback;
 
 void CreateConfigMenu(tgui::Gui &gui);
 
+void CreateHeatmapBar(tgui::Gui &gui)
+{
+    auto wnd_width = tgui::bindWidth(gui);
+    auto wnd_height = tgui::bindHeight(gui);
+	
+	const sf::Vector2i bar_size = {25, 200};
+	sf::Image heatmap_bar_img;
+	heatmap_bar_img.create(bar_size.x, bar_size.y);
+
+	for(auto y = 0; y < bar_size.y; ++y)
+	{
+		const double mix = static_cast<double>(y) / bar_size.y;
+		for(auto x = 0; x < bar_size.x; ++x)
+			heatmap_bar_img.setPixel(x, y, getHeatMapColor(1-mix));
+	}
+
+	static sf::Texture texture;
+	texture.loadFromImage(heatmap_bar_img);
+	auto heatmapBar = tgui::Picture::create(texture);
+	heatmapBar->setSize(bar_size.x, bar_size.y);
+	heatmapBar->setPosition(wnd_width - tgui::bindWidth(heatmapBar), wnd_height/2 - tgui::bindHeight(heatmapBar)/2);
+	gui.add(heatmapBar);
+
+	auto maxTempLabel = tgui::Label::create("600");
+	maxTempLabel->setAutoSize(true);
+	maxTempLabel->setPosition(tgui::bindLeft(heatmapBar) - tgui::bindWidth(maxTempLabel) - 5, tgui::bindTop(heatmapBar));
+	gui.add(maxTempLabel);
+
+	auto minTempLabel = tgui::Label::create("25");
+	minTempLabel->setAutoSize(true);
+	minTempLabel->setPosition(tgui::bindLeft(heatmapBar) - tgui::bindWidth(minTempLabel) - 5, tgui::bindBottom(heatmapBar) - tgui::bindHeight(minTempLabel));
+	gui.add(minTempLabel);
+}
+
 void gui::CreateGUI(tgui::Gui &gui)
 {
+	CreateHeatmapBar(gui);
+
     auto wnd_width = tgui::bindWidth(gui);
     auto wnd_height = tgui::bindHeight(gui);
 	

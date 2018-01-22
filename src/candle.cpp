@@ -242,7 +242,7 @@ size_t Candle::index(const sf::Vector2i pos) const
 
 void Candle::CalculateHeatmap()
 {
-	double t_min = m_points.at(0).temperature;
+	/*double t_min = m_points.at(0).temperature;
 	double t_max = t_min;
 
 	// Find max and min temperature
@@ -252,7 +252,9 @@ void Candle::CalculateHeatmap()
 			t_min = p.temperature;
 		if(p.temperature > t_max)
 			t_max = p.temperature;
-	}
+	}*/
+	const double t_min = 25;
+	const double t_max = 600;
 
 	sf::Image heatmap_img;
 	heatmap_img.create(m_size.x * units::pixelsPerUnit, m_size.y * units::pixelsPerUnit);
@@ -264,7 +266,7 @@ void Candle::CalculateHeatmap()
 		const auto pos = sf::Vector2f(i / m_size.x, i % m_size.x);
 
 		const auto mix = (m_points.at(i).temperature - t_min) / (t_max - t_min);
-		const auto pointColor = ColorMix(sf::Color::Blue, sf::Color::Red, mix) * sf::Color(255, 255, 255, 200);
+		const auto pointColor = getHeatMapColor(mix) * sf::Color(255, 255, 255, 200);
 		
 		// Fill square
 		for(auto y = 0; y < pixelsPerUnit; ++y)
