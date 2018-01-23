@@ -1,12 +1,13 @@
+#include <iostream>
+
 #include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
-#include <iostream>
+#include "gif.h"
+
+#include "main.hpp"
+#include "config.hpp"
 #include "candle.hpp"
 #include "gui.hpp"
-#include "config.hpp"
-
-#include "gif.h"
-#include "main.hpp"
 
 sf::Time SimulationTime = sf::Time::Zero;
 float speedMultiplier = 900;
@@ -28,9 +29,14 @@ int main()
 	window.setFramerateLimit(60);
     tgui::Gui gui(window);
 
+	// Load font
+	sf::Font font;
+	font.loadFromFile("resources/DejaVuSans.ttf");
+	gui.setFont(font);
+
     try
     {
-        gui::CreateGUI(gui);
+        gui::CreateGUI(window, gui);
     }
     catch(const tgui::Exception &e)
     {
@@ -129,7 +135,7 @@ int main()
 			__physics_time = 0;
 		}
 
-		gui::UpdateGUI(gui);
+		gui::UpdateGUI(window, gui);
 
 		// Drawning
         window.clear(sf::Color::White);

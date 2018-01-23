@@ -1,11 +1,13 @@
 #pragma once
 #include <vector>
 #include <cmath>
+#include <functional>
+
 #include <SFML/Graphics.hpp>
+
 #include "point.hpp"
 #include "units.hpp"
 #include "config.hpp"
-#include <functional>
 
 class Candle : public sf::Drawable, public sf::Transformable
 {
@@ -61,6 +63,11 @@ public:
 	void Update(sf::Time deltaTime);
 
 	void CalculateFloating(sf::Vector2u wnd_size);
+
+	Point GetPoint(sf::Vector2i pos) const
+	{
+		return m_points.at(index(pos));
+	}
 
 	std::function<void()> onCandleExtinguished;
 	

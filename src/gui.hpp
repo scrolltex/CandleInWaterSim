@@ -1,10 +1,10 @@
 #pragma once
-#include <TGUI/TGUI.hpp>
 #include <functional>
+#include <TGUI/TGUI.hpp>
 
 namespace gui{
-    void CreateGUI(tgui::Gui &gui);
-	void UpdateGUI(tgui::Gui &gui);
+    void CreateGUI(sf::RenderWindow &window, tgui::Gui &gui);
+	void UpdateGUI(sf::RenderWindow &window, tgui::Gui &gui);
 
 	void ShowMessage(tgui::Gui &gui, std::string message, std::string title = "Info");
 	

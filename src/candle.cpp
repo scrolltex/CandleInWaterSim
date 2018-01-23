@@ -177,17 +177,16 @@ void Candle::Update(sf::Time deltaTime)
 	}
 
 	// Paraffin aggregation state changing
-	#pragma omp parallel for
-	for(int i = 0; i < m_points.size(); i++)
+	for(auto & m_point : m_points)
 	{
-		if(m_points.at(i).GetMaterial() == Paraffin && m_points.at(i).temperature > 65)
+		if(m_point.GetMaterial() == Paraffin && m_point.temperature > 65)
 		{
-			m_points.at(i).SetMaterial(ParaffinLiquid);
+			m_point.SetMaterial(ParaffinLiquid);
 		}
-		else if (m_points.at(i).GetMaterial() == ParaffinLiquid && m_points.at(i).temperature > 90)
+		else if (m_point.GetMaterial() == ParaffinLiquid && m_point.temperature > 90)
 		{
-			m_points.at(i).SetMaterial(Air);
-			m_points.at(i).temperature = 25;
+			m_point.SetMaterial(Air);
+			m_point.temperature = 25;
 		}
 	}
 

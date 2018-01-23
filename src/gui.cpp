@@ -1,9 +1,11 @@
 #include "gui.hpp"
+
 #include <string>
 #include <map>
-#include "candle.hpp"
-#include "config.hpp"
+
 #include "main.hpp"
+#include "config.hpp"
+#include "candle.hpp"
 
 // Callbacks
 std::function<void()> gui::onApplyCallback;
@@ -50,12 +52,13 @@ void gui::ShowMessage(tgui::Gui &gui, std::string message, std::string title)
 	gui.add(messageBox);	
 }
 
-void CreateHeatmapBar(tgui::Gui &gui);
+inline void CreateHeatmapBar(tgui::Gui &gui);
 
-void CreateConfigMenu(tgui::Gui &gui);
+inline void CreateConfigMenu(tgui::Gui &gui);
 
-void gui::CreateGUI(tgui::Gui &gui)
+void gui::CreateGUI(sf::RenderWindow &window, tgui::Gui &gui)
 {
+	auto theme = tgui::Theme::create("resources/theme.txt");
     auto wnd_width = tgui::bindWidth(gui);
     auto wnd_height = tgui::bindHeight(gui);
 	
@@ -109,6 +112,14 @@ void gui::CreateGUI(tgui::Gui &gui)
 	gui.add(simTimeLabel, "SimulationTimeLabel");
 		
 	CreateHeatmapBar(gui);
+
+	// Point info tooltip
+	tgui::Label::Ptr pointInfoTooltip = theme->load("Tooltip");
+	pointInfoTooltip->hide();
+	gui.add(pointInfoTooltip, "PointInfoTooltip");
+	tgui::Panel::Ptr hoveredPoint = tgui::Panel::create({units::pixelsPerUnit, units::pixelsPerUnit});
+	hoveredPoint->hide();
+	gui.add(hoveredPoint, "HoveredPoint");
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Register callbacks /////////////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +140,7 @@ void gui::CreateGUI(tgui::Gui &gui)
 	});
 }
 
-void CreateHeatmapBar(tgui::Gui &gui)
+inline void CreateHeatmapBar(tgui::Gui &gui)
 {
     auto wnd_width = tgui::bindWidth(gui);
     auto wnd_height = tgui::bindHeight(gui);
@@ -182,7 +193,7 @@ struct MaterialEditBox
 
 std::map<MaterialType, MaterialEditBox> MaterialEditBoxes;
 
-void CreateConfigMenu(tgui::Gui &gui)
+inline void CreateConfigMenu(tgui::Gui &gui)
 {
     auto wnd_width = tgui::bindWidth(gui);
     auto wnd_height = tgui::bindHeight(gui);
@@ -328,7 +339,61 @@ void CreateConfigMenu(tgui::Gui &gui)
 	});
 }
 
-void gui::UpdateGUI(tgui::Gui &gui)
+inline void UpdatePointInfoTooltip(sf::RenderWindow &window, tgui::Gui &gui)
+{
+	static auto wnd = gui.getWindow();
+	assert(wnd != nullptr);
+
+	static auto tooltip = gui.get<tgui::Label>("PointInfoTooltip");
+	assert(tooltip != nullptr);
+
+	static auto hoveredPoint = gui.get("HoveredPoint");
+	assert(hoveredPoint != nullptr);
+
+	const auto candle_pos = Candle::Instance().getPosition();
+	const auto candle_size = static_cast<sf::Vector2f>(Candle::Instance().GetSizeInPx());
+
+	sf::FloatRect rect = {
+		candle_pos.x - candle_size.x/2.0f,
+		candle_pos.y - candle_size.y,
+		static_cast<float>(candle_size.x),
+		static_cast<float>(candle_size.y)
+	};
+
+	const auto mouse_pos = sf::Mouse::getPosition(window);
+
+	if(rect.contains(static_cast<sf::Vector2f>(mouse_pos)))
+	{
+		auto point_pos = sf::Vector2i(std::floor((mouse_pos.x - candle_pos.x + candle_size.x/2) / units::pixelsPerUnit), 
+									  std::floor((mouse_pos.y - candle_pos.y + candle_size.y) / units::pixelsPerUnit));
+
+		point_pos.y += 9;
+
+		auto point = Candle::Instance().GetPoint(point_pos);
+		
+		tooltip->setText(MaterialTypeToString(point.GetMaterial()) + "\n" + std::to_string(point.temperature));
+		tooltip->setPosition(mouse_pos.x + 8, mouse_pos.y + 0);
+		
+		hoveredPoint->setPosition(rect.left + point_pos.x * units::pixelsPerUnit, 
+								  rect.top + (point_pos.y - 9) * units::pixelsPerUnit);
+
+		if(!tooltip->isVisible())
+		{
+			tooltip->show();
+			hoveredPoint->show();
+		}
+	}
+	else
+	{
+		if(tooltip->isVisible())
+		{
+			tooltip->hide();
+			hoveredPoint->hide();
+		}
+	}
+}
+
+void gui::UpdateGUI(sf::RenderWindow &window, tgui::Gui &gui)
 {
 	static auto simTimeLabel = gui.get<tgui::Label>("SimulationTimeLabel");
 	if(simTimeLabel)
@@ -360,4 +425,6 @@ void gui::UpdateGUI(tgui::Gui &gui)
 	}	
 
 	setPlaying(gui, Config::Instance().isPlaying);
+
+	UpdatePointInfoTooltip(window, gui);
 }
